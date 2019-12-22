@@ -61,7 +61,7 @@
           style="width:65%;"
           @keyup.enter.native="handleLogin"
         />
-        <img :src="url" alt="点击更换" class="yzm" />
+        <img :src="url" alt="点击更换" class="yzm" @click="getCode" />
       </el-form-item>
 
       <el-button
@@ -72,8 +72,8 @@
       >登录</el-button>
 
       <div class="tips">
-        <span style="margin-right:20px;">username: admin</span>
-        <span>password: 123456</span>
+        <span style="margin-right:20px;">账号: admin</span>
+        <span>密码: 123456</span>
       </div>
     </el-form>
   </div>
@@ -84,14 +84,14 @@ import { validUsername } from "@/utils/validate";
 export default {
   name: "Login",
   data() {
-    const validateUsername = (rule, value, callback) => {
+    const validateAdmAccount = (rule, value, callback) => {
       if (!validUsername(value)) {
         callback(new Error("Please enter the correct user name"));
       } else {
         callback();
       }
     };
-    const validatePassword = (rule, value, callback) => {
+    const validateAdmPassword = (rule, value, callback) => {
       if (value.length < 6) {
         callback(new Error("The password can not be less than 6 digits"));
       } else {
@@ -99,7 +99,7 @@ export default {
       }
     };
     const validateVerificationCode = (rule, value, callback) => {
-      if (value.length < 4) {
+      if (value.length < 4 || value.length > 4) {
         callback(new Error("The verificationCode error"));
       } else {
         callback();
@@ -107,16 +107,16 @@ export default {
     };
     return {
       loginForm: {
-        username: "admin",
-        password: "123456",
+        admAccount: "admin",
+        admPassword: "123456",
         verificationCode: "1234"
       },
       loginRules: {
-        username: [
-          { required: true, trigger: "blur", validator: validateUsername }
+        admAccount: [
+          { required: true, trigger: "blur", validator: validateAdmAccount }
         ],
-        password: [
-          { required: true, trigger: "blur", validator: validatePassword }
+        admPassword: [
+          { required: true, trigger: "blur", validator: validateAdmPassword }
         ],
         verificationCode: [
           {
@@ -151,16 +151,15 @@ export default {
         this.passwordType = "password";
       }
       this.$nextTick(() => {
-        this.$refs.password.focus();
+        this.$refs.admPassword.focus();
       });
     },
     handleLogin() {
-      console.log(this.$refs);
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true;
           this.$store
-            .dispatch("user/login", this.loginForm)
+            .dispatch("admin/adminLogin", this.loginForm)
             .then(() => {
               this.$router.push({ path: this.redirect || "/" });
               this.loading = false;
@@ -175,6 +174,7 @@ export default {
       });
     },
     getCode() {
+      console.log('点击了yzm')
       this.url = "http://127.0.0.1:8080/verificationCode/getCode";
     }
   }
